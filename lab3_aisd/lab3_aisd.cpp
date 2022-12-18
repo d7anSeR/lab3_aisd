@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <math.h>
 #include <conio.h>
+#include <vector>
 
 using namespace std;
 template<class C>
@@ -11,7 +12,8 @@ private:
 	{
 		C reX = 0, imX = 0, reY = 0, imY = 0;
 	};
-	PointsC* line = NULL;
+	/*PointsC* line = NULL;*/
+	std::vector<PointsC> a;
 	int number_points = 0, more_number = 0;
 public:
 	Complex<C>(int number_points = 0)
@@ -21,10 +23,11 @@ public:
 			this->number_points = number_points;
 			return;
 		}
-		more_number = number_points * 2;
-		line = new PointsC[more_number];
+		this->more_number = number_points * 2;
+		a.resize(more_number);
 		this->number_points = number_points;
 	}
+	~Complex() = default;
 	int Get_number_points() const { return number_points; }
 	int Get_more_points() const { return more_number; }
 	Complex operator +(Complex& other) //конкатенация двух линий 
@@ -32,11 +35,12 @@ public:
 		if (this->number_points + other.Get_number_points() >= this->more_number)
 		{
 			this->more_number = (this->Get_more_points() + other.Get_number_points());
-			Complex* tmpline = new Complex[this->Get_more_points()];
+			Complex* tmpline (more_number);
 			tmpline = this;
 			*this = *tmpline;
 		}
-		for (int i = 0, j = this->number_points; i < other.Get_number_points(); i++, j++)
+		/*for (int i = 0, j = this->number_points; i < other.Get_number_points(); i++, j++)*/
+		for (auto& i : tmpline)
 		{
 			this->line[j] = other[i];
 		}
@@ -78,26 +82,29 @@ public:
 	PointsC operator [] (int other_point) const //for reading
 	{
 		if (other_point >= 0 && other_point < number_points)
-			return (line[other_point]);
+			return (a[other_point]);
 		throw "!invalid index!";
 	}
 	PointsC& operator [] (int other_point) //for writing
 	{
 		if (other_point >= 0 && other_point < number_points)
-			return (line[other_point]);
+			return (a[other_point]);
 		throw "!invalid index!";
 	}
 
 	friend ostream& operator<<(ostream& out, Complex& a)
 	{
-		for (int i = 0; i < a.Get_number_points(); i++)
+		int j = 0;
+		for (auto i : a)
 		{
-			out << "[" << i + 1 << "]" << "(" << "(" << a[i].reX << ";" << a[i].imX << ")" << "," << "(" << a[i].reY << ";" << a[i].imY << ")" << ")" << endl;
-
+			out << i;
+			if(j < a.Get_number_points() - 1 ) out << a << ", " << endl;
+			j++;
 		}
 		return out;
 	}
-	Complex operator=(const Complex& other)
+	Complex operator =(const Complex&) = default;
+	/*Complex operator=(const Complex& other)
 	{
 		for (int i = 0; i < other.Get_number_points(); i++)
 		{
@@ -107,15 +114,16 @@ public:
 			(*this)[i].imY = other[i].imY;
 		}
 		return *this;
-	}
+	}*/
 
 	bool operator == (const Complex& other)
 	{
 		if (this->Get_number_points() == other.Get_number_points())
 		{
-			for (int i = 0; i < this->Get_number_points(); i++)
+			int count = 0;
+			for (auto i : other.a)
 			{
-				if ((*this)[i].reX != other[i].reX || (*this)[i].reY != other[i].reY || (*this)[i].imX != other[i].imX || (*this)[i].imY != other[i].imY)
+				if (a[count++] != i)
 					return false;
 			}
 			return true;
@@ -126,14 +134,20 @@ public:
 	{
 		if (this->Get_number_points() == other.Get_number_points())
 		{
-			for (int i = 0; i < this->Get_number_points(); i++)
+			for (auto i : other.a)
 			{
-				if ((*this)[i].reX != other[i].reX || (*this)[i].reY != other[i].reY || (*this)[i].imX != other[i].imX || (*this)[i].imY != other[i].imY)
+				if (a[count++] != i)
 					return true;
 			}
 			return false;
 		}
 		return true;
+	}
+	auto begin() {
+		return a.begin();
+	}
+	auto end() {
+		return a.end();
 	}
 
 };
