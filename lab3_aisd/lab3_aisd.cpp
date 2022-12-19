@@ -11,10 +11,16 @@ private:
 	struct PointsC
 	{
 		C reX = 0, imX = 0, reY = 0, imY = 0;
+		PointsC operator=(const PointsC& point)
+		{
+			this->imX = point.imX;
+			this->imY = point.imY;
+			this->reX = point.reX;
+			this->reY = point.reY;
+		}
 	};
-	/*PointsC* line = NULL;*/
 	std::vector<PointsC> a;
-	int number_points = 0, more_number = 0;
+	int number_points = 0;
 public:
 	Complex<C>(int number_points = 0)
 	{
@@ -23,60 +29,48 @@ public:
 			this->number_points = number_points;
 			return;
 		}
-		this->more_number = number_points * 2;
-		a.resize(more_number);
+		a.resize(number_points);
 		this->number_points = number_points;
 	}
-	~Complex() = default;
 	int Get_number_points() const { return number_points; }
-	int Get_more_points() const { return more_number; }
+	template<class C>
 	Complex operator +(Complex& other) //конкатенация двух линий 
 	{
-		if (this->number_points + other.Get_number_points() >= this->more_number)
+		Complex<C> tmp(number_points + other.number_points);
+		tmp.number_points = number_points + other.number_points;
+		int j = 0;
+		for (const auto& i : a)
 		{
-			this->more_number = (this->Get_more_points() + other.Get_number_points());
-			Complex* tmpline (more_number);
-			tmpline = this;
-			*this = *tmpline;
+			tmp[j] = i;
+			j++;
 		}
-		/*for (int i = 0, j = this->number_points; i < other.Get_number_points(); i++, j++)*/
-		for (auto& i : tmpline)
+		for (const auto& i : other.a)
 		{
-			this->line[j] = other[i];
+			tmp[j] = i;
+			j++;
 		}
-		this->number_points += other.Get_number_points();
-		return *this;
+		return tmp;
 	}
 
 	Complex operator +(PointsC& point)//сложение ломаной и точки, добавление в конец 
 	{
-		this->number_points++;
-		if (this->Get_number_points() == this->Get_more_points())
-		{
-			this->more_number *= 2;
-			Complex* tmpline = new Complex[this->Get_more_points()];
-			tmpline = this;
-			*this = *tmpline;
-		}
-		(*this)[this->Get_number_points() - 1] = point;
+		a.push_back(point);
+		number_points++;
 		return *this;
 	}
 
 	friend Complex operator +(PointsC& point, Complex& tmp_line)//сложение точки и ломанной, добавление в начало
 	{
+		std::vector<PointsC> tmp(tmp_line.Get_number_points() + 1);
+		int j = 0;
+		for (const auto& i : tmp_line.a)
+		{
+			tmp[j + 1] = i;
+			j++;
+		}
+		tmp[0] = point;
+		tmp_line.a= tmp;
 		tmp_line.number_points++;
-		if (tmp_line.Get_number_points() == tmp_line.Get_more_points())
-		{
-			tmp_line.more_number *= 2;
-			Complex* tline = new Complex[tmp_line.Get_more_points()];
-			tline = &tmp_line;
-			tmp_line = *tline;
-		}
-		for (int i = tmp_line.Get_number_points() - 1; i != 0; i--)
-		{
-			tmp_line[i] = tmp_line[i - 1];
-		}
-		tmp_line[0] = point;
 		return tmp_line;
 	}
 	PointsC operator [] (int other_point) const //for reading
@@ -103,19 +97,16 @@ public:
 		}
 		return out;
 	}
-	Complex operator =(const Complex&) = default;
-	/*Complex operator=(const Complex& other)
+	friend ostream& operator<<(ostream& out, PointsC& a)
 	{
-		for (int i = 0; i < other.Get_number_points(); i++)
-		{
-			(*this)[i].reX = other[i].reX;
-			(*this)[i].reY = other[i].reY;
-			(*this)[i].imX = other[i].imX;
-			(*this)[i].imY = other[i].imY;
-		}
-		return *this;
-	}*/
-
+		return out << "(" << a.reX << ", " << a.imX << ")" << ";" << "(" << a.reY << ", " << a.imY << ")" << endl;
+	}
+	Complex<C>& operator=(const Complex&) = default;
+	friend bool operator !=(const PointsC& point1, const PointsC& point2)
+	{
+		if (point1.reX != point2.reX || point1.imX != point2.imX || point1.reY != point2.reY || point1.imY != point2.imY) return true;
+		return false;
+	}
 	bool operator == (const Complex& other)
 	{
 		if (this->Get_number_points() == other.Get_number_points())
@@ -123,8 +114,9 @@ public:
 			int count = 0;
 			for (auto i : other.a)
 			{
-				if (a[count++] != i)
+				if (a[count] != i)
 					return false;
+				count++;
 			}
 			return true;
 		}
@@ -132,16 +124,7 @@ public:
 	}
 	bool operator != (const Complex& other)
 	{
-		if (this->Get_number_points() == other.Get_number_points())
-		{
-			for (auto i : other.a)
-			{
-				if (a[count++] != i)
-					return true;
-			}
-			return false;
-		}
-		return true;
+		return !((*this) == other);
 	}
 	auto begin() {
 		return a.begin();
@@ -160,9 +143,14 @@ private:
 	struct Points
 	{
 		T x = 0, y = 0;
+		Points operator=(const Points& point)
+		{
+			this->x = point.x;
+			this->y = point.y;
+		}
 	};
-	Points* line = NULL;
-	int number_points = 0, more_number = 0;
+	std::vector<Points> a;
+	int number_points = 0;
 
 public:
 	Line<T>(int number_points = 0)
@@ -172,119 +160,113 @@ public:
 			this->number_points = number_points;
 			return;
 		}
-		more_number = number_points * 2;
-		line = new Points[more_number];
+		a.resize(number_points);
 		this->number_points = number_points;
 	}
 	int Get_number_points() const { return number_points; }
-	int Get_more_points() const { return more_number; }
 
-
-	friend std::ostream& operator << (std::ostream& os, const Line point)
+	friend ostream& operator<<(ostream& out, Line& a)
 	{
-		for (int i = 0; i < point.Get_number_points(); i++)
+		int j = 0;
+		for (auto i : a)
 		{
-			os << '(' << point[i].x << ';' << point[i].y << ')' << endl;
-
+			out << i;
+			if (j < a.Get_number_points() - 1) out << a << ", " << endl;
+			j++;
 		}
-		return os;
+		return out;
 	}
 
 
 	Points operator [] (int other_point) const //for reading
 	{
 		if (other_point >= 0 && other_point < number_points)
-			return (line[other_point]);
+			return (a[other_point]);
 		throw "!invalid index!";
 	}
 	Points& operator [] (int other_point) //for writing
 	{
 		if (other_point >= 0 && other_point < number_points)
-			return (line[other_point]);
+			return (a[other_point]);
 		throw "!invalid index!";
 	}
 
 	Line operator +(Line& other) //конкатенация двух линий 
 	{
-		if (this->number_points + other.Get_number_points() >= this->more_number)
+		Line<T> tmp(number_points + other.number_points);
+		tmp.number_points = number_points + other.number_points;
+		int j = 0;
+		for (const auto& i : a)
 		{
-			this->more_number = (this->Get_more_points() + other.Get_number_points());
-			Line* tmpline = new Line[this->Get_more_points()];
-			tmpline = this;
-			*this = *tmpline;
+			tmp[j] = i;
+			j++;
 		}
-		for (int i = 0, j = this->number_points; i < other.Get_number_points(); i++, j++)
+		for (const auto& i : other.a)
 		{
-			this->line[j] = other[i];
+			tmp[j] = i;
+			j++;
 		}
-		this->number_points += other.Get_number_points();
-		return *this;
+		return tmp;
 	}
 
 	Line operator +(Points& point)//сложение ломаной и точки, добавление в конец 
 	{
-		this->number_points++;
-		if (this->Get_number_points() == this->Get_more_points())
-		{
-			this->more_number *= 2;
-			Line* tmpline = new Line[this->Get_more_points()];
-			tmpline = this;
-			*this = *tmpline;
-		}
-		(*this)[this->Get_number_points() - 1] = point;
+		a.push_back(point);
+		number_points++;
 		return *this;
 	}
 	friend Line operator +(Points& point, Line& tmp_line)////сложение точки и ломанной, добавление в начало
 	{
+		std::vector<Points> tmp(tmp_line.Get_number_points() + 1);
+		int j = 0;
+		for (const auto& i : tmp_line.a)
+		{
+			tmp[j + 1] = i;
+			j++;
+		}
+		tmp[0] = point;
+		tmp_line.a = tmp;
 		tmp_line.number_points++;
-		if (tmp_line.Get_number_points() == tmp_line.Get_more_points())
-		{
-			tmp_line.more_number *= 2;
-			Line* tline = new Line[tmp_line.Get_more_points()];
-			tline = &tmp_line;
-			tmp_line = *tline;
-		}
-		for (int i = tmp_line.Get_number_points() - 1; i != 0; i--)
-		{
-			tmp_line[i] = tmp_line[i - 1];
-		}
-		tmp_line[0] = point;
 		return tmp_line;
 	}
-	Line operator =(const Line& tmp_line)
+	Line<T>& operator =(const Line&) = default;
+	bool operator == (const Line& other)
 	{
-		for (int i = 0; i < tmp_line.Get_number_points(); i++)
+		if (this->Get_number_points() == other.Get_number_points())
 		{
-			(*this)[i] = tmp_line[i];
-		}
-		return *this;
-	}
-	bool operator == (const Line& other_line)
-	{
-		if (this->Get_number_points() == other_line.Get_number_points())
-		{
-			for (int i = 0; i < this->Get_number_points(); i++)
+			int count = 0;
+			for (auto i : other.a)
 			{
-				if ((*this)[i].x != other_line[i].x || (*this)[i].y != other_line[i].y)
+				if (a[count] != i)
 					return false;
+				count++;
 			}
 			return true;
 		}
 		return false;
 	}
-	bool operator != (const Line& other_line)
+
+	friend bool operator !=(const Points& point1, const Points& point2)
 	{
-		if (this->Get_number_points() == other_line.Get_number_points())
-		{
-			for (int i = 0; i < this->Get_number_points(); i++)
-			{
-				if ((*this)[i].x != other_line[i].x || (*this)[i].y != other_line[i].y)
-					return true;
-			}
-			return false;
-		}
-		return true;
+		if (point1.x != point2.x || point1.y != point2.y) return true;
+		return false;
 	}
+
+	bool operator != (const Line& other)
+	{
+		return !((*this) == other);
+	}
+	friend ostream& operator<<(ostream& out, Points& a)
+	{
+		return out << "(" << a.x << ", " << a.y << ")";
+	}
+	auto begin() {
+		return a.begin();
+	}
+	auto end() {
+		return a.end();
+	}
+
 };
 
 
