@@ -17,6 +17,7 @@ private:
 			this->imY = point.imY;
 			this->reX = point.reX;
 			this->reY = point.reY;
+			return *this;
 		}
 	};
 	std::vector<PointsC> a;
@@ -33,8 +34,7 @@ public:
 		this->number_points = number_points;
 	}
 	int Get_number_points() const { return number_points; }
-	template<class C>
-	Complex operator +(Complex& other) //конкатенация двух линий 
+	Complex operator +(const Complex& other) //конкатенация двух линий 
 	{
 		Complex<C> tmp(number_points + other.number_points);
 		tmp.number_points = number_points + other.number_points;
@@ -52,14 +52,14 @@ public:
 		return tmp;
 	}
 
-	Complex operator +(PointsC& point)//сложение ломаной и точки, добавление в конец 
+	Complex operator +(const PointsC& point)//сложение ломаной и точки, добавление в конец 
 	{
-		a.push_back(point);
 		number_points++;
+		a.push_back(point);
 		return *this;
 	}
 
-	friend Complex operator +(PointsC& point, Complex& tmp_line)//сложение точки и ломанной, добавление в начало
+	friend Complex operator +(const PointsC& point, Complex& tmp_line)//сложение точки и ломанной, добавление в начало
 	{
 		std::vector<PointsC> tmp(tmp_line.Get_number_points() + 1);
 		int j = 0;
@@ -69,7 +69,7 @@ public:
 			j++;
 		}
 		tmp[0] = point;
-		tmp_line.a= tmp;
+		tmp_line.a = tmp;
 		tmp_line.number_points++;
 		return tmp_line;
 	}
@@ -91,15 +91,15 @@ public:
 		int j = 0;
 		for (auto i : a)
 		{
-			out << i;
-			if(j < a.Get_number_points() - 1 ) out << a << ", " << endl;
+			out  << i;
+			if (j < a.Get_number_points() - 1) out  << endl;
 			j++;
 		}
 		return out;
 	}
 	friend ostream& operator<<(ostream& out, PointsC& a)
 	{
-		return out << "(" << a.reX << ", " << a.imX << ")" << ";" << "(" << a.reY << ", " << a.imY << ")" << endl;
+		return out << "(" << "(" << a.reX << ", " << a.imX << ")" << ";" << "(" << a.reY << ", " << a.imY << ")" << ")";
 	}
 	Complex<C>& operator=(const Complex&) = default;
 	friend bool operator !=(const PointsC& point1, const PointsC& point2)
@@ -147,12 +147,14 @@ private:
 		{
 			this->x = point.x;
 			this->y = point.y;
+			return *this;
 		}
 	};
 	std::vector<Points> a;
 	int number_points = 0;
 
 public:
+
 	Line<T>(int number_points = 0)
 	{
 		if (number_points == 0)
@@ -171,7 +173,7 @@ public:
 		for (auto i : a)
 		{
 			out << i;
-			if (j < a.Get_number_points() - 1) out << a << ", " << endl;
+			if (j < a.Get_number_points() - 1) out  << endl;
 			j++;
 		}
 		return out;
@@ -191,7 +193,7 @@ public:
 		throw "!invalid index!";
 	}
 
-	Line operator +(Line& other) //конкатенация двух линий 
+	Line operator +(const Line& other) //конкатенация двух линий 
 	{
 		Line<T> tmp(number_points + other.number_points);
 		tmp.number_points = number_points + other.number_points;
@@ -209,13 +211,13 @@ public:
 		return tmp;
 	}
 
-	Line operator +(Points& point)//сложение ломаной и точки, добавление в конец 
+	Line operator +(const Points& point)//сложение ломаной и точки, добавление в конец 
 	{
-		a.push_back(point);
 		number_points++;
+		a.push_back(point);
 		return *this;
 	}
-	friend Line operator +(Points& point, Line& tmp_line)////сложение точки и ломанной, добавление в начало
+	friend Line operator +(const Points& point, Line& tmp_line)////сложение точки и ломанной, добавление в начало
 	{
 		std::vector<Points> tmp(tmp_line.Get_number_points() + 1);
 		int j = 0;
@@ -276,7 +278,7 @@ Line<T> CreatingLine(Line<T>& start_line) {
 	T x, y;
 	for (int i = 0; i < start_line.Get_number_points(); i++)
 	{
-		std::cout << endl << "Enter the coordinates of the point:" << endl;
+		std::cout << endl << endl << "Enter the coordinates of the point:" << endl;
 		std::cout << endl << "x = ";
 		std::cin >> x;
 		std::cout << endl << "y = ";
@@ -292,7 +294,7 @@ Complex<C> CreatingLineC(Complex<C> start_line) {
 	C x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 	for (int i = 0; i < start_line.Get_number_points(); i++)
 	{
-		cout << endl << "Enter the coordinates of the point:" << endl;
+		cout << endl << endl << "Enter the coordinates of the point:" << endl;
 		cout << "x1: ";
 		cin >> x1;
 		cout << "x2: ";
@@ -367,7 +369,7 @@ int IndexPoint(Line<T>& start_line, bool flag)
 			std::cout << start_line << endl;
 			std::cout << "Coordinates of the point with index " << index << " = (" << start_line[index - 1].x << "; " << start_line[index - 1].y << ")" << endl << endl;
 		}
-		std::cout << "Press 'Backspace' to return";
+		std::cout << endl << "Press 'Backspace' to return";
 		choice = _getch();
 		if (choice == 8) flag = true;
 	}
@@ -436,7 +438,7 @@ int IndexPointC(Complex<C>& start_line, bool flag)
 			std::cout << start_line << endl;
 			std::cout << "Coordinates of the point with index " << index << " = (" << "(" << start_line[index - 1].reX << ";" << start_line[index - 1].imX << ")" << "," << "(" << start_line[index - 1].reY << ";" << start_line[index - 1].imY << ")" << ")" << endl << endl;
 		}
-		std::cout << "Press 'Backspace' to return";
+		std::cout << endl << "Press 'Backspace' to return";
 		choice = _getch();
 		if (choice == 8) flag = true;
 	}
@@ -454,7 +456,7 @@ int SumLine(Line<T>& start_line, bool flag)
 	while (flag1)
 	{
 		try {
-			std::cout << "Press the second broken line " << endl;
+			std::cout << endl << "Press the second broken line " << endl;
 			flag = true;
 
 			while (flag)
@@ -486,7 +488,7 @@ int SumLine(Line<T>& start_line, bool flag)
 		start_line = start_line + new_line;
 		std::cout << endl << "Result: " << endl;
 		cout << start_line;
-		std::cout << "Press 'Backspace' to return" << endl << endl;
+		std::cout << endl << "Press 'Backspace' to return" << endl << endl;
 		choice = _getch();
 		if (choice == 8) flag1 = true;
 	}
@@ -504,7 +506,7 @@ int SumLineC(Complex<C>& start_line, bool flag)
 	while (flag1)
 	{
 		try {
-			std::cout << "Press the second broken line " << endl;
+			std::cout << endl << "Press the second broken line " << endl;
 			flag = true;
 
 			while (flag)
@@ -536,7 +538,7 @@ int SumLineC(Complex<C>& start_line, bool flag)
 		start_line = start_line + new_line;
 		std::cout << endl << "Result: " << endl;
 		cout << start_line;
-		std::cout << "Press 'Backspace' to return" << endl << endl;
+		std::cout << endl << "Press 'Backspace' to return" << endl << endl;
 		choice = _getch();
 		if (choice == 8) flag1 = true;
 	}
@@ -555,7 +557,7 @@ int SumPoint_Line(Line<T>& start_line, bool flag)
 		choice = _getch();
 		if (choice == 8) return choice;
 		T x = 0, y = 0;
-		std::cout << "Press coordinates of the point which want to add: " << endl;
+		std::cout << endl << "Press coordinates of the point which want to add: " << endl;
 		std::cout << "x = ";
 		cin >> x;
 		std::cout << "y = ";
@@ -584,7 +586,7 @@ int SumPoint_LineC(Complex<C>& start_line, bool flag)
 		choice = _getch();
 		if (choice == 8) return choice;
 		C x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-		std::cout << "Press coordinates of the point which want to add: " << endl;
+		std::cout << endl << "Press coordinates of the point which want to add: " << endl;
 		std::cout << "x1 = ";
 		cin >> x1;
 		std::cout << "x2 = ";
@@ -620,7 +622,7 @@ int SumLine_Point(Line<T>& start_line, bool flag)
 		choice = _getch();
 		if (choice == 8) return choice;
 		T x = 0, y = 0;
-		std::cout << "Press coordinates of the point which want to add: " << endl;
+		std::cout << endl << "Press coordinates of the point which want to add: " << endl;
 		std::cout << "x = ";
 		std::cin >> x;
 		std::cout << "y = ";
@@ -649,7 +651,7 @@ int SumLine_PointC(Complex<C>& start_line, bool flag)
 		choice = _getch();
 		if (choice == 8) return choice;
 		C x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-		std::cout << "Press coordinates of the point which want to add: " << endl;
+		std::cout << endl << "Press coordinates of the point which want to add: " << endl;
 		std::cout << "x1 = ";
 		std::cin >> x1;
 		std::cout << "x2 = ";
@@ -724,7 +726,7 @@ int Compare(Line<T>& start_line)
 		choice = _getch();
 		if (choice == 8) return choice;
 		try {
-			std::cout << "Press the second broken line " << endl;
+			std::cout << endl << "Press the second broken line " << endl;
 			flag = true;
 
 			while (flag)
@@ -756,7 +758,7 @@ int Compare(Line<T>& start_line)
 		cout << new_line;
 		if (start_line == new_line) cout << "The broken lines are equal!" << endl;
 		if (start_line != new_line) cout << "The broken lines are unequal!" << endl;
-		std::cout << "Press 'Backspace' to return" << endl << endl;
+		std::cout << endl << "Press 'Backspace' to return" << endl << endl;
 		choice = _getch();
 		if (choice == 8) flag1 = true;
 	}
@@ -776,7 +778,7 @@ int CompareC(Complex<C>& start_line)
 		choice = _getch();
 		if (choice == 8) return choice;
 		try {
-			std::cout << "Press the second broken line " << endl;
+			std::cout << endl << "Press the second broken line " << endl;
 			flag = true;
 
 			while (flag)
@@ -806,9 +808,9 @@ int CompareC(Complex<C>& start_line)
 		Complex<C> new_line = CreatingLineC(tmp_line);
 		flag1 = false;
 		cout << new_line;
-		if (start_line == new_line) cout << "The broken lines are equal!" << endl;
-		if (start_line != new_line) cout << "The broken lines are unequal!" << endl;
-		std::cout << "Press 'Backspace' to return" << endl << endl;
+		if (start_line == new_line) cout << endl << "The broken lines are equal!" << endl;
+		if (start_line != new_line) cout << endl << "The broken lines are unequal!" << endl;
+		std::cout << endl << "Press 'Backspace' to return" << endl << endl;
 		choice = _getch();
 		if (choice == 8) flag1 = true;
 	}
@@ -850,7 +852,7 @@ void AutoCreateLine(T x, T y, Line<T>& line, T a, T b, T h)
 	line[3].y = y + a - b;
 	line[4].x = x;
 	line[4].y = y;
-	cout << line;
+	cout << endl << line;
 }
 template <class C>
 void AutoCreateLineC(C x1, C x2, C y1, C y2, Complex<C>& line, C a, C b, C h)
@@ -875,7 +877,7 @@ void AutoCreateLineC(C x1, C x2, C y1, C y2, Complex<C>& line, C a, C b, C h)
 	line[4].imX = x2;
 	line[4].reY = y1;
 	line[4].imY = y2;
-	cout << line;
+	cout << endl << line;
 }
 
 template <class T>
@@ -907,7 +909,7 @@ Line<T>& CreatingRecTrapezoid(bool flag)
 			cout << endl << "Try again" << endl;
 		}
 	}
-	std::cout << "Press coordinaes of the first point" << endl;
+	std::cout << endl << "Press coordinaes of the first point" << endl;
 	std::cout << "х = ";
 	cin >> x;
 	std::cout << "y = ";
@@ -945,7 +947,7 @@ Complex<C>& CreatingRecTrapezoidC(bool flag)
 			cout << endl << "Try again" << endl;
 		}
 	}
-	std::cout << "Press coordinaes of the first point" << endl;
+	std::cout << endl << "Press coordinaes of the first point" << endl;
 	std::cout << "х1 = ";
 	cin >> x1;
 	std::cout << "х2 = ";
@@ -1170,7 +1172,6 @@ int main()
 		}
 	}
 }
-
 template class Complex <float>;
 template class Complex<double>;
 template class Line <int>;
