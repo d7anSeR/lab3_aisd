@@ -23,6 +23,9 @@ private:
 	std::vector<PointsC> a;
 	int number_points = 0;
 public:
+	Complex(const Complex<C>& src) = default;
+	~Complex() = default;
+	Complex<C>& operator= (const Complex<C>& src) = default;
 	Complex<C>(int number_points = 0)
 	{
 		if (number_points == 0)
@@ -91,8 +94,8 @@ public:
 		int j = 0;
 		for (auto i : a)
 		{
-			out  << i;
-			if (j < a.Get_number_points() - 1) out  << endl;
+			out << i;
+			if (j < a.Get_number_points() - 1) out << endl;
 			j++;
 		}
 		return out;
@@ -101,7 +104,7 @@ public:
 	{
 		return out << "(" << "(" << a.reX << ", " << a.imX << ")" << ";" << "(" << a.reY << ", " << a.imY << ")" << ")";
 	}
-	Complex<C>& operator=(const Complex&) = default;
+	//	Complex<C>& operator=(const Complex&) = default;
 	friend bool operator !=(const PointsC& point1, const PointsC& point2)
 	{
 		if (point1.reX != point2.reX || point1.imX != point2.imX || point1.reY != point2.reY || point1.imY != point2.imY) return true;
@@ -135,7 +138,6 @@ public:
 
 };
 
-
 template <typename T>
 class Line
 {
@@ -165,6 +167,8 @@ public:
 		a.resize(number_points);
 		this->number_points = number_points;
 	}
+	Line(const Line<T>&) = default;
+	~Line() = default;
 	int Get_number_points() const { return number_points; }
 
 	friend ostream& operator<<(ostream& out, Line& a)
