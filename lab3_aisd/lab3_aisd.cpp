@@ -89,17 +89,6 @@ public:
 		throw "!invalid index!";
 	}
 
-	friend ostream& operator<<(ostream& out, Complex& a)
-	{
-		int j = 0;
-		for (auto i : a)
-		{
-			out << i;
-			if (j < a.Get_number_points() - 1) out << endl;
-			j++;
-		}
-		return out;
-	}
 	friend ostream& operator<<(ostream& out, PointsC& a)
 	{
 		return out << "(" << "(" << a.reX << ", " << a.imX << ")" << ";" << "(" << a.reY << ", " << a.imY << ")" << ")";
@@ -137,6 +126,18 @@ public:
 	}
 
 };
+template<class C>
+std::ostream& operator<<(ostream& out, Complex<C>& a)
+{
+	int j = 0;
+	for (auto i : a)
+	{
+		out << i;
+		if (j < a.Get_number_points() - 1) out << endl;
+		j++;
+	}
+	return out;
+}
 
 template <typename T>
 class Line
@@ -171,17 +172,7 @@ public:
 	~Line() = default;
 	int Get_number_points() const { return number_points; }
 
-	friend ostream& operator<<(ostream& out, Line& a)
-	{
-		int j = 0;
-		for (auto i : a)
-		{
-			out << i;
-			if (j < a.Get_number_points() - 1) out  << endl;
-			j++;
-		}
-		return out;
-	}
+	
 
 
 	Points operator [] (int other_point) const //for reading
@@ -274,6 +265,18 @@ public:
 	}
 
 };
+template <class T>
+std:: ostream& operator<<(ostream& out, Line<T>& a)
+{
+	int j = 0;
+	for (auto i : a)
+	{
+		out << i;
+		if (j < a.Get_number_points() - 1) out << endl;
+		j++;
+	}
+	return out;
+}
 
 
 
